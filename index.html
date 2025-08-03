@@ -1,74 +1,41 @@
-<div style="max-width: 500px; margin: auto; font-family: sans-serif;">
+<div style="max-width: 600px; margin: auto; font-family: sans-serif; text-align:center;">
   <h3>Track Your Project</h3>
-  <label for="invoiceInput">Enter Your Tracker ID:</label><br>
+  <label for="trackerInput">Enter Your Tracker ID:</label><br>
   <input
     type="text"
-    id="invoiceInput"
+    id="trackerInput"
     placeholder="e.g. 10022"
-    style="padding: 8px; width: 100%; margin-top: 8px;"
+    style="padding: 8px; width: 100%; margin-top: 8px; max-width:300px;"
   />
-  <button
-    onclick="getInvoice()"
-    style="margin-top: 10px; padding: 8px 16px;"
-  >
+  <button onclick="showIframe()" style="margin-top: 10px; padding: 8px 16px;">
     View My Job
   </button>
 
   <div
-    id="output"
-    style="margin-top: 20px; border: 1px solid #ccc; padding: 12px; border-radius: 6px;"
-  ></div>
+    id="iframeContainer"
+    style="margin-top: 20px; min-height: 400px; border: 1px solid #ccc; border-radius: 6px; display:none;"
+  >
+    <iframe
+      id="trackerIframe"
+      src=""
+      style="width: 100%; height: 450px; border: none;"
+      title="Project Tracker"
+    ></iframe>
+  </div>
 </div>
 
 <script>
-  async function getInvoice() {
-    const invoice = document.getElementById("invoiceInput").value.trim();
-    const outputDiv = document.getElementById("output");
+  function showIframe() {
+    const trackerId = document.getElementById("trackerInput").value.trim();
+    const container = document.getElementById("iframeContainer");
 
-    if (!invoice) {
-      outputDiv.innerHTML = "<p style='color:red;'>Please enter your Tracker ID.</p>";
+    if (!trackerId) {
+      alert("Please enter your Tracker ID.");
       return;
     }
 
-    outputDiv.innerHTML = "Loading...";
-
-    const url = `https://script.google.com/macros/s/AKfycbwKldLZMicVFwKVVqtfg3PEZgJGFu-B5qdlVq16sHBIgu6KE3tC3uait0O8miFpmQ_p-g/exec?invoice=${encodeURIComponent(invoice)}`;
-
-    try {
-      const res = await fetch(url);
-      const text = await res.text();
-
-      // Check for possible error messages returned by your script
-      if (
-        text === "Invoice not found" ||
-        text === "Missing invoice parameter" ||
-        text === "Tracker ID column not found"
-      ) {
-        outputDiv.innerHTML = `<p style="color:red;">${text}</p>`;
-        return;
-      }
-
-      const data = JSON.parse(text);
-
-      outputDiv.innerHTML = `
-        <h4>Project Details</h4>
-        <p><strong>Name:</strong> ${data["Name"] || "N/A"}</p>
-        <p><strong>Date:</strong> ${data["Date"] || "N/A"}</p>
-        <p><strong>Phone:</strong> ${data["Phone"] || "N/A"}</p>
-        <p><strong>Email:</strong> ${data["Email"] || "N/A"}</p>
-        <p><strong>Service:</strong> ${data["Service"] || "N/A"}</p>
-        <p><strong>Cost:</strong> ${data["$$$"] || "N/A"}</p>
-        <p><strong>Notes:</strong> ${data["Notes"] || "N/A"}</p>
-        <p><strong>Contract Date:</strong> ${data["Contract Date"] || "N/A"}</p>
-        <p><strong>Start Date:</strong> ${data["Start Date"] || "N/A"}</p>
-        <p><strong>Projected Completion Date:</strong> ${data["Projected Completion Date"] || "N/A"}</p>
-        <p><strong>Status:</strong> ${data["Status"] || "N/A"}</p>
-        <p><strong>Tracker ID:</strong> ${data["Tracker ID"] || "N/A"}</p>
-      `;
-    } catch (err) {
-      outputDiv.innerHTML =
-        "<p style='color:red;'>Error retrieving data. Please try again later.</p>";
-      console.error("Fetch error:", err);
-    }
+    const iframe = document.getElementById("trackerIframe");
+    iframe.src = `https://script.google.com/macros/s/AKfycbwS_Z06-gFMvbtgC6LAtRU1hYdseqImh9byV5nOzwolMdT_vK41o6J__u4N7HmdevVhSg/exec?invoice=${encodeURIComponent(trackerId)}`;
+    container.style.display = "block";
   }
 </script>
