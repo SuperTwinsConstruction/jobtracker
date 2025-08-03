@@ -1,0 +1,48 @@
+<div style="max-width: 500px; margin: auto; font-family: sans-serif;">
+  <h3>Track Your Project</h3>
+  <label for="invoiceInput">Enter Your Tracker ID:</label><br>
+  <input type="text" id="invoiceInput" placeholder="e.g. TRK-1001" style="padding: 8px; width: 100%; margin-top: 8px;" />
+  <button onclick="getInvoice()" style="margin-top: 10px; padding: 8px 16px;">View My Job</button>
+
+  <div id="output" style="margin-top: 20px; border: 1px solid #ccc; padding: 12px; border-radius: 6px;"></div>
+</div>
+
+<script>
+  async function getInvoice() {
+    const invoice = document.getElementById("invoiceInput").value.trim();
+    const url = `https://script.google.com/macros/s/AKfycbxn7fxaC92RDy0ZqEXrHyS20fZGc50uW7U_i1jWvY75/dev?invoice=${encodeURIComponent(invoice)}`;
+    
+    const outputDiv = document.getElementById("output");
+    outputDiv.innerHTML = "Loading...";
+
+    try {
+      const res = await fetch(url);
+      const text = await res.text();
+
+      if (text === "Invoice not found") {
+        outputDiv.innerHTML = "<p style='color:red;'>No record found. Please check your Tracker ID.</p>";
+        return;
+      }
+
+      const data = JSON.parse(text);
+
+      outputDiv.innerHTML = `
+        <h4>Project Details</h4>
+        <p><strong>Name:</strong> ${data["Name"] || "N/A"}</p>
+        <p><strong>Date:</strong> ${data["Date"] || "N/A"}</p>
+        <p><strong>Phone:</strong> ${data["Phone"] || "N/A"}</p>
+        <p><strong>Email:</strong> ${data["Email"] || "N/A"}</p>
+        <p><strong>Service:</strong> ${data["Service"] || "N/A"}</p>
+        <p><strong>Cost:</strong> ${data["$$$"] || "N/A"}</p>
+        <p><strong>Notes:</strong> ${data["Notes"] || "N/A"}</p>
+        <p><strong>Contract Date:</strong> ${data["Contract Date"] || "N/A"}</p>
+        <p><strong>Start Date:</strong> ${data["Start Date"] || "N/A"}</p>
+        <p><strong>Projected Completion Date:</strong> ${data["Projected Completion Date"] || "N/A"}</p>
+        <p><strong>Status:</strong> ${data["Status"] || "N/A"}</p>
+        <p><strong>Tracker ID:</strong> ${data["Tracker ID"] || "N/A"}</p>
+      `;
+    } catch (err) {
+      outputDiv.innerHTML = "<p style='color:red;'>Error retrieving data. Please try again later.</p>";
+    }
+  }
+</script>
