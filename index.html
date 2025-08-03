@@ -1,26 +1,50 @@
 <div style="max-width: 500px; margin: auto; font-family: sans-serif;">
   <h3>Track Your Project</h3>
   <label for="invoiceInput">Enter Your Tracker ID:</label><br>
-  <input type="text" id="invoiceInput" placeholder="e.g. TRK-1001" style="padding: 8px; width: 100%; margin-top: 8px;" />
-  <button onclick="getInvoice()" style="margin-top: 10px; padding: 8px 16px;">View My Job</button>
+  <input
+    type="text"
+    id="invoiceInput"
+    placeholder="e.g. 10022"
+    style="padding: 8px; width: 100%; margin-top: 8px;"
+  />
+  <button
+    onclick="getInvoice()"
+    style="margin-top: 10px; padding: 8px 16px;"
+  >
+    View My Job
+  </button>
 
-  <div id="output" style="margin-top: 20px; border: 1px solid #ccc; padding: 12px; border-radius: 6px;"></div>
+  <div
+    id="output"
+    style="margin-top: 20px; border: 1px solid #ccc; padding: 12px; border-radius: 6px;"
+  ></div>
 </div>
 
 <script>
   async function getInvoice() {
     const invoice = document.getElementById("invoiceInput").value.trim();
-    const url = `https://script.google.com/macros/s/AKfycbxn7fxaC92RDy0ZqEXrHyS20fZGc50uW7U_i1jWvY75/dev?invoice=${encodeURIComponent(invoice)}`;
-    
     const outputDiv = document.getElementById("output");
+
+    if (!invoice) {
+      outputDiv.innerHTML = "<p style='color:red;'>Please enter your Tracker ID.</p>";
+      return;
+    }
+
     outputDiv.innerHTML = "Loading...";
+
+    const url = `https://script.google.com/macros/s/AKfycbwKldLZMicVFwKVVqtfg3PEZgJGFu-B5qdlVq16sHBIgu6KE3tC3uait0O8miFpmQ_p-g/exec?invoice=${encodeURIComponent(invoice)}`;
 
     try {
       const res = await fetch(url);
       const text = await res.text();
 
-      if (text === "Invoice not found") {
-        outputDiv.innerHTML = "<p style='color:red;'>No record found. Please check your Tracker ID.</p>";
+      // Check for possible error messages returned by your script
+      if (
+        text === "Invoice not found" ||
+        text === "Missing invoice parameter" ||
+        text === "Tracker ID column not found"
+      ) {
+        outputDiv.innerHTML = `<p style="color:red;">${text}</p>`;
         return;
       }
 
@@ -42,7 +66,9 @@
         <p><strong>Tracker ID:</strong> ${data["Tracker ID"] || "N/A"}</p>
       `;
     } catch (err) {
-      outputDiv.innerHTML = "<p style='color:red;'>Error retrieving data. Please try again later.</p>";
+      outputDiv.innerHTML =
+        "<p style='color:red;'>Error retrieving data. Please try again later.</p>";
+      console.error("Fetch error:", err);
     }
   }
 </script>
